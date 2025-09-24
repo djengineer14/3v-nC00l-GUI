@@ -1,18 +1,22 @@
--- 3v@nC00l GUI - Local Script
+-- 3v@nC00l GUI - Local Script (FIXED)
 -- Place this in StarterPlayer > StarterPlayerScripts
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
+-- Wait a moment to ensure everything loads
+wait(1)
+
 -- Create main ScreenGui
 local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "3v@nC00lGUI"
+screenGui.Name = "EvAnC00lGUI"
 screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 999
+screenGui.IgnoreGuiInset = false
 screenGui.Parent = playerGui
 
 -- Main Frame (c00lkidd style)
@@ -23,7 +27,8 @@ mainFrame.Position = UDim2.new(0.5, -225, 0.5, -175)
 mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BorderSizePixel = 2
 mainFrame.BorderColor3 = Color3.fromRGB(0, 162, 255) -- Blue outline
-mainFrame.ClipsDescendants = true
+mainFrame.Active = true
+mainFrame.Draggable = true -- Simple draggable
 mainFrame.Parent = screenGui
 
 -- Inner frame for the classic inset look
@@ -84,11 +89,15 @@ closeButton.Font = Enum.Font.SourceSansBold
 closeButton.Parent = titleBar
 
 -- Content Frame
-local contentFrame = Instance.new("Frame")
+local contentFrame = Instance.new("ScrollingFrame")
 contentFrame.Name = "Content"
 contentFrame.Size = UDim2.new(1, -10, 1, -45)
 contentFrame.Position = UDim2.new(0, 5, 0, 40)
 contentFrame.BackgroundTransparency = 1
+contentFrame.BorderSizePixel = 0
+contentFrame.ScrollBarThickness = 8
+contentFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 162, 255)
+contentFrame.CanvasSize = UDim2.new(0, 0, 0, 320)
 contentFrame.Parent = innerFrame
 
 -- Header label
@@ -116,8 +125,8 @@ local scripts = {
 for i, script in ipairs(scripts) do
     local scriptFrame = Instance.new("Frame")
     scriptFrame.Name = "Script" .. i
-    scriptFrame.Size = UDim2.new(1, 0, 0, 55)
-    scriptFrame.Position = UDim2.new(0, 0, 0, 35 + (i-1) * 60)
+    scriptFrame.Size = UDim2.new(1, -15, 0, 55)
+    scriptFrame.Position = UDim2.new(0, 5, 0, 35 + (i-1) * 60)
     scriptFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
     scriptFrame.BorderSizePixel = 1
     scriptFrame.BorderColor3 = Color3.fromRGB(0, 162, 255)
@@ -185,7 +194,11 @@ for i, script in ipairs(scripts) do
     
     -- Execute script function
     executeButton.MouseButton1Click:Connect(function()
-        local success, error = pcall(function()
+        executeButton.Text = "LOADING..."
+        executeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 0)
+        buttonInner.BackgroundColor3 = Color3.fromRGB(150, 150, 0)
+        
+        local success, err = pcall(function()
             loadstring(game:HttpGet(script.url))()
         end)
         
@@ -196,12 +209,15 @@ for i, script in ipairs(scripts) do
             executeButton.Text = "SUCCESS"
             scriptDesc.Text = "Script executed successfully!"
             scriptDesc.TextColor3 = Color3.fromRGB(0, 255, 0)
-            wait(2)
-            executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
-            buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-            executeButton.Text = "EXECUTE"
-            scriptDesc.Text = "Click EXECUTE to run this script"
-            scriptDesc.TextColor3 = Color3.fromRGB(100, 150, 200)
+            
+            spawn(function()
+                wait(2)
+                executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+                buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+                executeButton.Text = "EXECUTE"
+                scriptDesc.Text = "Click EXECUTE to run this script"
+                scriptDesc.TextColor3 = Color3.fromRGB(100, 150, 200)
+            end)
         else
             -- Error feedback
             executeButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
@@ -209,20 +225,25 @@ for i, script in ipairs(scripts) do
             executeButton.Text = "ERROR"
             scriptDesc.Text = "Failed to execute script!"
             scriptDesc.TextColor3 = Color3.fromRGB(255, 100, 100)
-            wait(2)
-            executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
-            buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-            executeButton.Text = "EXECUTE"
-            scriptDesc.Text = "Click EXECUTE to run this script"
-            scriptDesc.TextColor3 = Color3.fromRGB(100, 150, 200)
-            warn("3v@nC00l GUI - Script execution failed: " .. tostring(error))
+            warn("3v@nC00l GUI Error: " .. tostring(err))
+            
+            spawn(function()
+                wait(2)
+                executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+                buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+                executeButton.Text = "EXECUTE"
+                scriptDesc.Text = "Click EXECUTE to run this script"
+                scriptDesc.TextColor3 = Color3.fromRGB(100, 150, 200)
+            end)
         end
     end)
     
     -- Hover effects
     executeButton.MouseEnter:Connect(function()
-        executeButton.BackgroundColor3 = Color3.fromRGB(0, 130, 0)
-        buttonInner.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        if executeButton.Text == "EXECUTE" then
+            executeButton.BackgroundColor3 = Color3.fromRGB(0, 130, 0)
+            buttonInner.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+        end
     end)
     
     executeButton.MouseLeave:Connect(function()
@@ -237,7 +258,7 @@ end
 local footerLabel = Instance.new("TextLabel")
 footerLabel.Name = "Footer"
 footerLabel.Size = UDim2.new(1, 0, 0, 20)
-footerLabel.Position = UDim2.new(0, 0, 1, -25)
+footerLabel.Position = UDim2.new(0, 0, 0, 275)
 footerLabel.BackgroundTransparency = 1
 footerLabel.Text = "═══════════════════════════════════════════════"
 footerLabel.TextColor3 = Color3.fromRGB(0, 162, 255)
@@ -250,7 +271,7 @@ footerLabel.Parent = contentFrame
 local creditsLabel = Instance.new("TextLabel")
 creditsLabel.Name = "Credits"
 creditsLabel.Size = UDim2.new(1, 0, 0, 15)
-creditsLabel.Position = UDim2.new(0, 0, 1, -15)
+creditsLabel.Position = UDim2.new(0, 0, 0, 290)
 creditsLabel.BackgroundTransparency = 1
 creditsLabel.Text = "3v@nC00l GUI | Inspired by c00lkidd"
 creditsLabel.TextColor3 = Color3.fromRGB(100, 150, 200)
@@ -258,68 +279,23 @@ creditsLabel.TextSize = 9
 creditsLabel.Font = Enum.Font.Code
 creditsLabel.Parent = contentFrame
 
--- Dragging functionality
-local dragging = false
-local dragStart = nil
-local startPos = nil
-
-titleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = mainFrame.Position
-    end
-end)
-
-titleBar.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
-        local delta = input.Position - dragStart
-        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
 -- Close button functionality
 closeButton.MouseButton1Click:Connect(function()
-    -- Fade out animation
-    local fadeOut = TweenService:Create(
-        mainFrame,
-        TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-        {BackgroundTransparency = 1}
-    )
-    fadeOut:Play()
-    
-    fadeOut.Completed:Connect(function()
-        screenGui:Destroy()
-    end)
+    screenGui:Destroy()
 end)
 
--- Entrance animation (classic pop-in)
-mainFrame.Size = UDim2.new(0, 0, 0, 0)
-mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-
-local entranceTween = TweenService:Create(
-    mainFrame,
-    TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
-    {
-        Size = UDim2.new(0, 450, 0, 350),
-        Position = UDim2.new(0.5, -225, 0.5, -175)
-    }
-)
-
-entranceTween:Play()
+-- Show GUI immediately (no animation for testing)
+mainFrame.Visible = true
 
 -- Console output
+print("══════════════════════════════════")
 print("3v@nC00l GUI loaded successfully!")
-print("═══════════════════════════════════════")
 print("Scripts available:")
 for i, script in ipairs(scripts) do
     print("  " .. i .. ". " .. script.name)
 end
-print("═══════════════════════════════════════")
-print("Inspired by c00lkidd's classic GUI style")
+print("══════════════════════════════════")
+
+-- Debug print
+print("GUI should be visible now at position:", mainFrame.Position)
+print("Parent:", screenGui.Parent)
