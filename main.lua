@@ -1,301 +1,341 @@
--- 3v@nC00l GUI - Local Script (FIXED)
--- Place this in StarterPlayer > StarterPlayerScripts
+-- 3v@nC00l GUI - Delta Executor Compatible
+-- Execute with: loadstring(game:HttpGet("YOUR_URL"))()
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+-- Delta Executor compatibility checks
+local Players = game:GetService("Players") or game.Players
+local TweenService = game:GetService("TweenService") or game.TweenService
+local UserInputService = game:GetService("UserInputService") or game.UserInputService
+local RunService = game:GetService("RunService") or game.RunService
+local CoreGui = game:GetService("CoreGui") or game.CoreGui
 
+-- Get player and GUI parent (Delta compatibility)
 local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local guiParent
 
--- Wait a moment to ensure everything loads
-wait(1)
+-- Try different GUI parents for Delta compatibility
+if gethui then
+    guiParent = gethui()
+elseif syn and syn.protect_gui then
+    guiParent = CoreGui
+    syn.protect_gui(guiParent)
+elseif CoreGui then
+    guiParent = CoreGui
+else
+    guiParent = player.PlayerGui
+end
 
--- Create main ScreenGui
+-- Clean up existing GUI
+local existingGui = guiParent:FindFirstChild("EvAnC00lGUI")
+if existingGui then
+    existingGui:Destroy()
+end
+
+print("[DELTA] Creating 3v@nC00l GUI...")
+
+-- Create ScreenGui with Delta-specific settings
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "EvAnC00lGUI"
+screenGui.DisplayOrder = 999999
 screenGui.ResetOnSpawn = false
-screenGui.DisplayOrder = 999
-screenGui.IgnoreGuiInset = false
-screenGui.Parent = playerGui
+screenGui.IgnoreGuiInset = true
+screenGui.Parent = guiParent
 
--- Main Frame (c00lkidd style)
+-- Main container (Delta-optimized)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 450, 0, 350)
-mainFrame.Position = UDim2.new(0.5, -225, 0.5, -175)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-mainFrame.BorderSizePixel = 2
-mainFrame.BorderColor3 = Color3.fromRGB(0, 162, 255) -- Blue outline
+mainFrame.Size = UDim2.new(0, 460, 0, 390)
+mainFrame.Position = UDim2.new(0.5, -230, 0.5, -195)
+mainFrame.BackgroundColor3 = Color3.new(0, 0, 0)
+mainFrame.BorderSizePixel = 3
+mainFrame.BorderColor3 = Color3.fromRGB(0, 162, 255)
 mainFrame.Active = true
-mainFrame.Draggable = true -- Simple draggable
+mainFrame.Draggable = true
 mainFrame.Parent = screenGui
 
--- Inner frame for the classic inset look
+-- Inner frame (c00lkidd style)
 local innerFrame = Instance.new("Frame")
-innerFrame.Name = "InnerFrame"
-innerFrame.Size = UDim2.new(1, -6, 1, -6)
-innerFrame.Position = UDim2.new(0, 3, 0, 3)
-innerFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-innerFrame.BorderSizePixel = 1
-innerFrame.BorderColor3 = Color3.fromRGB(0, 162, 255)
+innerFrame.Size = UDim2.new(1, -8, 1, -8)
+innerFrame.Position = UDim2.new(0, 4, 0, 4)
+innerFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+innerFrame.BorderSizePixel = 2
+innerFrame.BorderColor3 = Color3.fromRGB(0, 120, 200)
 innerFrame.Parent = mainFrame
 
--- Title Bar (c00lkidd style header)
+-- Title bar
 local titleBar = Instance.new("Frame")
-titleBar.Name = "TitleBar"
-titleBar.Size = UDim2.new(1, 0, 0, 35)
+titleBar.Size = UDim2.new(1, 0, 0, 45)
 titleBar.Position = UDim2.new(0, 0, 0, 0)
-titleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-titleBar.BorderSizePixel = 1
+titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+titleBar.BorderSizePixel = 2
 titleBar.BorderColor3 = Color3.fromRGB(0, 162, 255)
 titleBar.Parent = innerFrame
 
 -- Title gradient effect
 local titleGradient = Instance.new("Frame")
-titleGradient.Size = UDim2.new(1, 0, 1, 0)
-titleGradient.BackgroundColor3 = Color3.fromRGB(0, 162, 255)
-titleGradient.BackgroundTransparency = 0.9
+titleGradient.Size = UDim2.new(1, -4, 1, -4)
+titleGradient.Position = UDim2.new(0, 2, 0, 2)
+titleGradient.BackgroundColor3 = Color3.fromRGB(0, 100, 180)
+titleGradient.BackgroundTransparency = 0.7
 titleGradient.BorderSizePixel = 0
 titleGradient.Parent = titleBar
 
--- Title Text (c00lkidd style)
+-- Title text
 local titleText = Instance.new("TextLabel")
-titleText.Name = "Title"
-titleText.Size = UDim2.new(1, -35, 1, 0)
-titleText.Position = UDim2.new(0, 5, 0, 0)
+titleText.Size = UDim2.new(1, -50, 1, 0)
+titleText.Position = UDim2.new(0, 12, 0, 0)
 titleText.BackgroundTransparency = 1
-titleText.Text = "3v@nC00l GUI v1.0"
-titleText.TextColor3 = Color3.fromRGB(0, 200, 255)
-titleText.TextSize = 16
+titleText.Text = "3v@nC00l GUI [DELTA]"
+titleText.TextColor3 = Color3.fromRGB(0, 220, 255)
+titleText.TextSize = 20
 titleText.Font = Enum.Font.Code
 titleText.TextXAlignment = Enum.TextXAlignment.Left
-titleText.TextStrokeTransparency = 0.5
-titleText.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+titleText.TextStrokeTransparency = 0.2
+titleText.TextStrokeColor3 = Color3.new(0, 0, 0)
 titleText.Parent = titleBar
 
--- Close Button (classic X)
+-- Close button
 local closeButton = Instance.new("TextButton")
-closeButton.Name = "CloseButton"
-closeButton.Size = UDim2.new(0, 25, 0, 25)
-closeButton.Position = UDim2.new(1, -30, 0, 5)
-closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-closeButton.BorderSizePixel = 1
-closeButton.BorderColor3 = Color3.fromRGB(0, 162, 255)
-closeButton.Text = "X"
-closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-closeButton.TextSize = 14
+closeButton.Size = UDim2.new(0, 35, 0, 35)
+closeButton.Position = UDim2.new(1, -40, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+closeButton.BorderSizePixel = 2
+closeButton.BorderColor3 = Color3.fromRGB(255, 100, 100)
+closeButton.Text = "✕"
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.TextSize = 18
 closeButton.Font = Enum.Font.SourceSansBold
 closeButton.Parent = titleBar
 
--- Content Frame
+-- Content area (ScrollingFrame for 5 scripts)
 local contentFrame = Instance.new("ScrollingFrame")
-contentFrame.Name = "Content"
-contentFrame.Size = UDim2.new(1, -10, 1, -45)
-contentFrame.Position = UDim2.new(0, 5, 0, 40)
-contentFrame.BackgroundTransparency = 1
-contentFrame.BorderSizePixel = 0
-contentFrame.ScrollBarThickness = 8
+contentFrame.Size = UDim2.new(1, -20, 1, -65)
+contentFrame.Position = UDim2.new(0, 10, 0, 55)
+contentFrame.BackgroundColor3 = Color3.fromRGB(8, 8, 12)
+contentFrame.BorderSizePixel = 1
+contentFrame.BorderColor3 = Color3.fromRGB(0, 162, 255)
+contentFrame.CanvasSize = UDim2.new(0, 0, 0, 420) -- Adjusted for 5 scripts
+contentFrame.ScrollBarThickness = 6
 contentFrame.ScrollBarImageColor3 = Color3.fromRGB(0, 162, 255)
-contentFrame.CanvasSize = UDim2.new(0, 0, 0, 320)
+contentFrame.ScrollBarImageTransparency = 0.3
 contentFrame.Parent = innerFrame
 
--- Header label
-local headerLabel = Instance.new("TextLabel")
-headerLabel.Name = "Header"
-headerLabel.Size = UDim2.new(1, 0, 0, 25)
-headerLabel.Position = UDim2.new(0, 0, 0, 5)
-headerLabel.BackgroundTransparency = 1
-headerLabel.Text = "═══════════════ SCRIPT EXECUTOR ═══════════════"
-headerLabel.TextColor3 = Color3.fromRGB(0, 162, 255)
-headerLabel.TextSize = 12
-headerLabel.Font = Enum.Font.Code
-headerLabel.TextStrokeTransparency = 0.7
-headerLabel.Parent = contentFrame
+-- Header
+local header = Instance.new("TextLabel")
+header.Size = UDim2.new(1, 0, 0, 30)
+header.Position = UDim2.new(0, 0, 0, 8)
+header.BackgroundTransparency = 1
+header.Text = "═══════════════ SCRIPT EXECUTOR ═══════════════"
+header.TextColor3 = Color3.fromRGB(0, 162, 255)
+header.TextSize = 13
+header.Font = Enum.Font.Code
+header.Parent = contentFrame
 
--- Scripts data
+-- Scripts array (Delta-optimized URLs)
 local scripts = {
-    {name = "XVC Hub", url = "https://pastebin.com/raw/Piw5bqGq"},
-    {name = "Kill Script", url = "https://raw.githubusercontent.com/retpirato/Roblox-Scripts/refs/heads/master/Fe%20Kill%20script%20%5BWorking%5D.lua"},
-    {name = "Natural Disaster Survival", url = "https://raw.githubusercontent.com/ddario66/Test/refs/heads/main/Nature%20disaster"},
-    {name = "TSB Hub", url = "https://raw.githubusercontent.com/ZaancOff/TSB-Hub/refs/heads/main/v2.lua"}
+    {
+        name = "XVC Hub",
+        desc = "Multi-game script hub",
+        url = "https://pastebin.com/raw/Piw5bqGq"
+    },
+    {
+        name = "Kill Script",
+        desc = "FE Kill script (R6/R15 compatible)",
+        url = "https://raw.githubusercontent.com/retpirato/Roblox-Scripts/refs/heads/master/Fe%20Kill%20script%20%5BWorking%5D.lua"
+    },
+    {
+        name = "Natural Disaster Survival",
+        desc = "NDS automation & ESP",
+        url = "https://raw.githubusercontent.com/ddario66/Test/refs/heads/main/Nature%20disaster"
+    },
+    {
+        name = "TSB Hub",
+        desc = "The Strongest Battlegrounds hub",
+        url = "https://raw.githubusercontent.com/ZaancOff/TSB-Hub/refs/heads/main/v2.lua"
+    },
+    {
+        name = "Trax Spawner",
+        desc = "PusarX loader & spawner",
+        url = "https://raw.githubusercontent.com/Estevansit0/KJJK/refs/heads/main/PusarX-loader.lua"
+    }
 }
 
--- Create script items (c00lkidd style)
+-- Create script buttons
 for i, script in ipairs(scripts) do
-    local scriptFrame = Instance.new("Frame")
-    scriptFrame.Name = "Script" .. i
-    scriptFrame.Size = UDim2.new(1, -15, 0, 55)
-    scriptFrame.Position = UDim2.new(0, 5, 0, 35 + (i-1) * 60)
-    scriptFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-    scriptFrame.BorderSizePixel = 1
-    scriptFrame.BorderColor3 = Color3.fromRGB(0, 162, 255)
-    scriptFrame.Parent = contentFrame
+    local yOffset = 45 + (i - 1) * 75
     
-    -- Inner script frame
-    local innerScriptFrame = Instance.new("Frame")
-    innerScriptFrame.Size = UDim2.new(1, -4, 1, -4)
-    innerScriptFrame.Position = UDim2.new(0, 2, 0, 2)
-    innerScriptFrame.BackgroundColor3 = Color3.fromRGB(5, 5, 5)
-    innerScriptFrame.BorderSizePixel = 1
-    innerScriptFrame.BorderColor3 = Color3.fromRGB(0, 100, 150)
-    innerScriptFrame.Parent = scriptFrame
+    -- Script container
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, -20, 0, 65)
+    container.Position = UDim2.new(0, 10, 0, yOffset)
+    container.BackgroundColor3 = Color3.fromRGB(18, 18, 28)
+    container.BorderSizePixel = 1
+    container.BorderColor3 = Color3.fromRGB(0, 162, 255)
+    container.Parent = contentFrame
     
-    -- Script name label
-    local scriptName = Instance.new("TextLabel")
-    scriptName.Name = "ScriptName"
-    scriptName.Size = UDim2.new(1, -100, 0, 20)
-    scriptName.Position = UDim2.new(0, 8, 0, 5)
-    scriptName.BackgroundTransparency = 1
-    scriptName.Text = "► " .. script.name
-    scriptName.TextColor3 = Color3.fromRGB(255, 255, 255)
-    scriptName.TextSize = 14
-    scriptName.Font = Enum.Font.Code
-    scriptName.TextXAlignment = Enum.TextXAlignment.Left
-    scriptName.TextStrokeTransparency = 0.7
-    scriptName.Parent = innerScriptFrame
+    -- Inner container
+    local inner = Instance.new("Frame")
+    inner.Size = UDim2.new(1, -4, 1, -4)
+    inner.Position = UDim2.new(0, 2, 0, 2)
+    inner.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
+    inner.BorderSizePixel = 1
+    inner.BorderColor3 = Color3.fromRGB(0, 100, 150)
+    inner.Parent = container
     
-    -- Script description
-    local scriptDesc = Instance.new("TextLabel")
-    scriptDesc.Name = "ScriptDesc"
-    scriptDesc.Size = UDim2.new(1, -100, 0, 15)
-    scriptDesc.Position = UDim2.new(0, 15, 0, 25)
-    scriptDesc.BackgroundTransparency = 1
-    scriptDesc.Text = "Click EXECUTE to run this script"
-    scriptDesc.TextColor3 = Color3.fromRGB(100, 150, 200)
-    scriptDesc.TextSize = 10
-    scriptDesc.Font = Enum.Font.Code
-    scriptDesc.TextXAlignment = Enum.TextXAlignment.Left
-    scriptDesc.Parent = innerScriptFrame
+    -- Script name
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, -110, 0, 28)
+    nameLabel.Position = UDim2.new(0, 10, 0, 5)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = "► " .. script.name
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.TextSize = 15
+    nameLabel.Font = Enum.Font.Code
+    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+    nameLabel.TextStrokeTransparency = 0.4
+    nameLabel.Parent = inner
     
-    -- Execute button (c00lkidd style)
-    local executeButton = Instance.new("TextButton")
-    executeButton.Name = "ExecuteButton"
-    executeButton.Size = UDim2.new(0, 80, 0, 35)
-    executeButton.Position = UDim2.new(1, -88, 0.5, -17.5)
-    executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
-    executeButton.BorderSizePixel = 2
-    executeButton.BorderColor3 = Color3.fromRGB(0, 162, 255)
-    executeButton.Text = "EXECUTE"
-    executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    executeButton.TextSize = 11
-    executeButton.Font = Enum.Font.SourceSansBold
-    executeButton.TextStrokeTransparency = 0.5
-    executeButton.Parent = innerScriptFrame
+    -- Description
+    local descLabel = Instance.new("TextLabel")
+    descLabel.Size = UDim2.new(1, -110, 0, 22)
+    descLabel.Position = UDim2.new(0, 18, 0, 32)
+    descLabel.BackgroundTransparency = 1
+    descLabel.Text = script.desc
+    descLabel.TextColor3 = Color3.fromRGB(130, 170, 210)
+    descLabel.TextSize = 11
+    descLabel.Font = Enum.Font.Code
+    descLabel.TextXAlignment = Enum.TextXAlignment.Left
+    descLabel.Parent = inner
     
-    -- Button inner frame
-    local buttonInner = Instance.new("Frame")
-    buttonInner.Size = UDim2.new(1, -4, 1, -4)
-    buttonInner.Position = UDim2.new(0, 2, 0, 2)
-    buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-    buttonInner.BorderSizePixel = 1
-    buttonInner.BorderColor3 = Color3.fromRGB(0, 200, 0)
-    buttonInner.Parent = executeButton
+    -- Execute button
+    local execButton = Instance.new("TextButton")
+    execButton.Size = UDim2.new(0, 90, 0, 45)
+    execButton.Position = UDim2.new(1, -100, 0.5, -22.5)
+    execButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
+    execButton.BorderSizePixel = 2
+    execButton.BorderColor3 = Color3.fromRGB(0, 180, 255)
+    execButton.Text = "EXECUTE"
+    execButton.TextColor3 = Color3.new(1, 1, 1)
+    execButton.TextSize = 13
+    execButton.Font = Enum.Font.SourceSansBold
+    execButton.Parent = inner
     
-    -- Execute script function
-    executeButton.MouseButton1Click:Connect(function()
-        executeButton.Text = "LOADING..."
-        executeButton.BackgroundColor3 = Color3.fromRGB(100, 100, 0)
-        buttonInner.BackgroundColor3 = Color3.fromRGB(150, 150, 0)
+    -- Button glow effect
+    local glow = Instance.new("Frame")
+    glow.Size = UDim2.new(1, -4, 1, -4)
+    glow.Position = UDim2.new(0, 2, 0, 2)
+    glow.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    glow.BackgroundTransparency = 0.4
+    glow.BorderSizePixel = 0
+    glow.Parent = execButton
+    
+    -- Execute function (Delta-compatible)
+    execButton.MouseButton1Click:Connect(function()
+        execButton.Text = "LOADING..."
+        execButton.BackgroundColor3 = Color3.fromRGB(180, 140, 0)
+        descLabel.Text = "Executing script..."
+        descLabel.TextColor3 = Color3.fromRGB(255, 200, 0)
         
-        local success, err = pcall(function()
-            loadstring(game:HttpGet(script.url))()
+        -- Delta-compatible execution
+        spawn(function()
+            local success, result = pcall(function()
+                -- Try Delta-specific HTTP methods first
+                local httpGet = game.HttpGet
+                if request then
+                    -- Delta's request method
+                    local response = request({
+                        Url = script.url,
+                        Method = "GET"
+                    })
+                    return loadstring(response.Body)()
+                else
+                    -- Fallback to standard method
+                    return loadstring(httpGet(game, script.url))()
+                end
+            end)
+            
+            if success then
+                execButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+                execButton.Text = "SUCCESS"
+                descLabel.Text = "Script executed successfully!"
+                descLabel.TextColor3 = Color3.fromRGB(0, 255, 120)
+                
+                wait(3)
+                execButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
+                execButton.Text = "EXECUTE"
+                descLabel.Text = script.desc
+                descLabel.TextColor3 = Color3.fromRGB(130, 170, 210)
+            else
+                execButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+                execButton.Text = "ERROR"
+                descLabel.Text = "Failed to execute!"
+                descLabel.TextColor3 = Color3.fromRGB(255, 120, 120)
+                print("[DELTA ERROR]:", result)
+                
+                wait(3)
+                execButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
+                execButton.Text = "EXECUTE"
+                descLabel.Text = script.desc
+                descLabel.TextColor3 = Color3.fromRGB(130, 170, 210)
+            end
         end)
-        
-        if success then
-            -- Success feedback
-            executeButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-            buttonInner.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-            executeButton.Text = "SUCCESS"
-            scriptDesc.Text = "Script executed successfully!"
-            scriptDesc.TextColor3 = Color3.fromRGB(0, 255, 0)
-            
-            spawn(function()
-                wait(2)
-                executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
-                buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-                executeButton.Text = "EXECUTE"
-                scriptDesc.Text = "Click EXECUTE to run this script"
-                scriptDesc.TextColor3 = Color3.fromRGB(100, 150, 200)
-            end)
-        else
-            -- Error feedback
-            executeButton.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-            buttonInner.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            executeButton.Text = "ERROR"
-            scriptDesc.Text = "Failed to execute script!"
-            scriptDesc.TextColor3 = Color3.fromRGB(255, 100, 100)
-            warn("3v@nC00l GUI Error: " .. tostring(err))
-            
-            spawn(function()
-                wait(2)
-                executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
-                buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
-                executeButton.Text = "EXECUTE"
-                scriptDesc.Text = "Click EXECUTE to run this script"
-                scriptDesc.TextColor3 = Color3.fromRGB(100, 150, 200)
-            end)
-        end
     end)
     
     -- Hover effects
-    executeButton.MouseEnter:Connect(function()
-        if executeButton.Text == "EXECUTE" then
-            executeButton.BackgroundColor3 = Color3.fromRGB(0, 130, 0)
-            buttonInner.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
+    execButton.MouseEnter:Connect(function()
+        if execButton.Text == "EXECUTE" then
+            execButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+            glow.BackgroundTransparency = 0.2
         end
     end)
     
-    executeButton.MouseLeave:Connect(function()
-        if executeButton.Text == "EXECUTE" then
-            executeButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
-            buttonInner.BackgroundColor3 = Color3.fromRGB(0, 120, 0)
+    execButton.MouseLeave:Connect(function()
+        if execButton.Text == "EXECUTE" then
+            execButton.BackgroundColor3 = Color3.fromRGB(0, 140, 0)
+            glow.BackgroundTransparency = 0.4
         end
     end)
 end
 
 -- Footer
-local footerLabel = Instance.new("TextLabel")
-footerLabel.Name = "Footer"
-footerLabel.Size = UDim2.new(1, 0, 0, 20)
-footerLabel.Position = UDim2.new(0, 0, 0, 275)
-footerLabel.BackgroundTransparency = 1
-footerLabel.Text = "═══════════════════════════════════════════════"
-footerLabel.TextColor3 = Color3.fromRGB(0, 162, 255)
-footerLabel.TextSize = 10
-footerLabel.Font = Enum.Font.Code
-footerLabel.TextStrokeTransparency = 0.7
-footerLabel.Parent = contentFrame
+local footer = Instance.new("TextLabel")
+footer.Size = UDim2.new(1, 0, 0, 25)
+footer.Position = UDim2.new(0, 0, 0, 390) -- Fixed position for scrollable content
+footer.BackgroundTransparency = 1
+footer.Text = "═══════════════════════════════════════════════"
+footer.TextColor3 = Color3.fromRGB(0, 162, 255)
+footer.TextSize = 11
+footer.Font = Enum.Font.Code
+footer.Parent = contentFrame
 
 -- Credits
-local creditsLabel = Instance.new("TextLabel")
-creditsLabel.Name = "Credits"
-creditsLabel.Size = UDim2.new(1, 0, 0, 15)
-creditsLabel.Position = UDim2.new(0, 0, 0, 290)
-creditsLabel.BackgroundTransparency = 1
-creditsLabel.Text = "3v@nC00l GUI | Inspired by c00lkidd"
-creditsLabel.TextColor3 = Color3.fromRGB(100, 150, 200)
-creditsLabel.TextSize = 9
-creditsLabel.Font = Enum.Font.Code
-creditsLabel.Parent = contentFrame
+local credits = Instance.new("TextLabel")
+credits.Size = UDim2.new(1, 0, 0, 15)
+credits.Position = UDim2.new(0, 0, 0, 405) -- Fixed position for scrollable content
+credits.BackgroundTransparency = 1
+credits.Text = "3v@nC00l GUI | Delta Compatible | c00lkidd Style"
+credits.TextColor3 = Color3.fromRGB(140, 180, 220)
+credits.TextSize = 10
+credits.Font = Enum.Font.Code
+credits.Parent = contentFrame
 
--- Close button functionality
+-- Close function
 closeButton.MouseButton1Click:Connect(function()
     screenGui:Destroy()
 end)
 
--- Show GUI immediately (no animation for testing)
-mainFrame.Visible = true
+-- Delta confirmation
+print("[DELTA] 3v@nC00l GUI loaded successfully!")
+print("[DELTA] Compatible with Delta Executor")
+print("[DELTA] GUI Parent:", guiParent.Name)
+print("[DELTA] Scripts loaded:", #scripts)
 
--- Console output
-print("══════════════════════════════════")
-print("3v@nC00l GUI loaded successfully!")
-print("Scripts available:")
-for i, script in ipairs(scripts) do
-    print("  " .. i .. ". " .. script.name)
-end
-print("══════════════════════════════════")
-
--- Debug print
-print("GUI should be visible now at position:", mainFrame.Position)
-print("Parent:", screenGui.Parent)
+-- Visual confirmation (Delta-safe)
+spawn(function()
+    wait(0.5)
+    for i = 1, 2 do
+        titleText.TextColor3 = Color3.fromRGB(255, 255, 0)
+        wait(0.3)
+        titleText.TextColor3 = Color3.fromRGB(0, 220, 255)
+        wait(0.3)
+    end
+end)
